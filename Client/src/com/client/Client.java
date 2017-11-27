@@ -62,7 +62,11 @@ public class Client {
 		  
 		  Request request = new Request();
 		  request.setModule((short) 1);
+		  request.setCmd((short) 1);
+		  request.setData(fightRequest.getBytes());
 		  
+		  //发送请求
+		  channel.write(request);
 	  }
   }
 }

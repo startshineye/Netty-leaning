@@ -1,4 +1,4 @@
-package com.client;
+package com.server;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -6,26 +6,45 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
+import com.cn.constants.StatusCode;
+import com.cn.model.Request;
 import com.cn.model.Response;
+import com.cn.module.fuben.request.FightRequest;
 import com.cn.module.fuben.response.FightResponse;
-
-public class HiHandler extends SimpleChannelHandler{
+/**
+ * 消息接受处理类
+ * @author -琴兽-
+ *
+ */
+public class HelloHandler extends SimpleChannelHandler {
 
 	/**
 	 * 接收消息
 	 */
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)throws Exception{
-		Response message = (Response)e.getMessage();
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
+		Request message = (Request)e.getMessage();
+		
 		if(message.getModule() == 1){
 			
 			if(message.getCmd() == 1){
+				
+				FightRequest fightRequest = new FightRequest();
+				fightRequest.readFromBytes(message.getData());
+				
+				System.out.println("fubenId:" +fightRequest.getFubenId() + "   " + "count:" + fightRequest.getCount());
+				
+				//回写数据
 				FightResponse fightResponse = new FightResponse();
-				fightResponse.readFromBytes(message.getData());
+				fightResponse.setGold(9999);
 				
-				System.out.println("gold:" + fightResponse.getGold());
-				
+				Response response = new Response();
+				response.setModule((short) 1);
+				response.setCmd((short) 1);
+				response.setStatusCode(StatusCode.SUCCESS);
+				response.setData(fightResponse.getBytes());
+				ctx.getChannel().write(response);
 			}else if(message.getCmd() == 2){
 				
 			}
@@ -35,7 +54,6 @@ public class HiHandler extends SimpleChannelHandler{
 			
 		}
 	}
-	
 
 	/**
 	 * 捕获异常
@@ -50,10 +68,11 @@ public class HiHandler extends SimpleChannelHandler{
 	 * 新连接
 	 */
 	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception{
+	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 		System.out.println("channelConnected");
 		super.channelConnected(ctx, e);
 	}
+
 	/**
 	 * 必须是链接已经建立，关闭通道的时候才会触发
 	 */
@@ -62,6 +81,7 @@ public class HiHandler extends SimpleChannelHandler{
 		System.out.println("channelDisconnected");
 		super.channelDisconnected(ctx, e);
 	}
+
 	/**
 	 * channel关闭的时候触发
 	 */
@@ -70,5 +90,4 @@ public class HiHandler extends SimpleChannelHandler{
 		System.out.println("channelClosed");
 		super.channelClosed(ctx, e);
 	}
-	
 }
