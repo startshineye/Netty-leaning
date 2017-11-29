@@ -29,7 +29,7 @@ public class Server {
 			public ChannelPipeline getPipeline() throws Exception {
 			ChannelPipeline pipeline = Channels.pipeline();
 			//处理消息之前对消息进行编码
-			pipeline.addLast("mydecoder", new MyDecoder());
+			pipeline.addLast("mydecoder",new MyDecoder());
 			//管道里面加入handler
 			pipeline.addLast("handler1", new HelloHander());
 			return pipeline;
